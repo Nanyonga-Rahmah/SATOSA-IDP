@@ -1,0 +1,42 @@
+[project]
+name = "sp"
+version = "0.1.0"
+description = "SATOSA test SP"
+requires-python = ">=3.11"
+dependencies = [
+    "flask",
+    "pysaml2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "flake8",
+    "mypy",
+    "pytest",
+    "pre-commit"
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[[tool.mypy.overrides]]
+module = "saml2.*"
+ignore_missing_imports = true

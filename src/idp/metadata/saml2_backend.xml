@@ -1,0 +1,43 @@
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ns1="urn:oasis:names:tc:SAML:metadata:ui" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" entityID="http://localhost:8080/Saml2IDP/proxy.xml">
+<ns0:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" WantAuthnRequestsSigned="false">
+<ns0:Extensions>
+<ns1:UIInfo>
+<ns1:DisplayName xml:lang="en">IdP Display Name</ns1:DisplayName>
+<ns1:Description xml:lang="en">IdP Description</ns1:Description>
+<ns1:Keywords xml:lang="se">Satosa IdP-SE</ns1:Keywords>
+<ns1:Keywords xml:lang="en">Satosa IdP-EN</ns1:Keywords>
+<ns1:Logo height="100" width="100">http://idp.logo.url/</ns1:Logo>
+<ns1:InformationURL xml:lang="en">http://idp.information.url/</ns1:InformationURL>
+<ns1:PrivacyStatementURL xml:lang="en">http://idp.privacy.url/</ns1:PrivacyStatementURL>
+</ns1:UIInfo>
+</ns0:Extensions>
+<ns0:KeyDescriptor use="signing">
+<ns2:KeyInfo>
+<ns2:X509Data>
+<ns2:X509Certificate>MIIDiTCCAnGgAwIBAgIUKwjXSGzE/bAAun+ibB0PwnbDuFcwDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUcxEDAOBgNVBAgMB0thbXBhbGExEDAOBgNVBAcMB0thbXBhbGExITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNjA3MTUwNTUxNThaFw0yNzA3MTUwNTUxNThaMFQxCzAJBgNVBAYTAlVHMRAwDgYDVQQIDAdLYW1wYWxhMRAwDgYDVQQHDAdLYW1wYWxhMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCp9P4nQnR+zGsjGsdCoI6rSvIkx+3yBqNCV5muw6hIPCYM/MpPUH5k1/6pe6giFAIeFsnlhqOtZXtkyWOXVk1mcmCl0D201BK3T9Ijug2HAsN7ohongo+y3kazynqMMk1z1aMcCAk2DuC1RvQgZ2ACNSg0/N9D4mCgFePp4i1b8jKoy4AGqgsSBB6p0MBTjDUwdn/CF7kQb41mQcyO7PkvobVgDN8kNMfwddLv/FtEw3c/4EhuvRe3zwGDGIFPWz3KR2o7sJ60ybE7b9OkG3Dr6YaUfoZ8fTuOYvE5Sqg6Bz74Z2WcMy+Pv+XQ7KYSHIWT2SpOZm+E0Bg84w5uKkeJAgMBAAGjUzBRMB0GA1UdDgQWBBS9pAkVk0E+ZIeSsOg6ZzQaaXFKrjAfBgNVHSMEGDAWgBS9pAkVk0E+ZIeSsOg6ZzQaaXFKrjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQACIqqsU39Raz/KDGFPaVU3aAlUneZkuxWcSDBpp2ux9rJwogfbUmbMeJM6MjXpWcRUUMW+BAprNAJh1IarfRNAI+r2oG3Z5Q9GRhDUnDsBLWyxEgNlBCDdsganwnxtkRboO7YkkaO42fiFbWNLTAUF+a6KZ65d6Y5mS7qpNF8MW8ReNOsxbyAtib3t5uRmoY8RtxXd4vkVzrVomc0oBvzia1bnF5dOQyfZfvaza97UaojOBl2BabQgCTe7F7pM0t8UEEyTOMgN7dBKwNup415MYyU9I641w9xnSoW2qxsdtQ89R0nmw3bSrk1GlxR9qhU9yLVWJTxv8NlrMFtxAnRG</ns2:X509Certificate>
+</ns2:X509Data>
+</ns2:KeyInfo>
+</ns0:KeyDescriptor>
+<ns0:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</ns0:NameIDFormat>
+<ns0:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</ns0:NameIDFormat>
+<ns0:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/Saml2/sso/post"/>
+<ns0:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:8080/Saml2/sso/redirect"/>
+</ns0:IDPSSODescriptor>
+<ns0:Organization>
+<ns0:OrganizationName xml:lang="en">Example Identities Org.</ns0:OrganizationName>
+<ns0:OrganizationDisplayName xml:lang="en">Example Identities</ns0:OrganizationDisplayName>
+<ns0:OrganizationURL xml:lang="en">http://localhost:8080</ns0:OrganizationURL>
+</ns0:Organization>
+<ns0:ContactPerson contactType="technical">
+<ns0:GivenName>Technical</ns0:GivenName>
+<ns0:EmailAddress>mailto:technical@example.com</ns0:EmailAddress>
+</ns0:ContactPerson>
+<ns0:ContactPerson contactType="support">
+<ns0:GivenName>Support</ns0:GivenName>
+<ns0:EmailAddress>mailto:support@example.com</ns0:EmailAddress>
+</ns0:ContactPerson>
+<ns0:ContactPerson xmlns:remd="http://refeds.org/metadata" contactType="other" remd:contactType="http://refeds.org/metadata/contactType/security">
+<ns0:GivenName>Security</ns0:GivenName>
+<ns0:EmailAddress>mailto:security@example.com</ns0:EmailAddress>
+</ns0:ContactPerson>
+</ns0:EntityDescriptor>

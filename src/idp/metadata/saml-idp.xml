@@ -1,0 +1,48 @@
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ns1="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" xmlns:ns2="urn:oasis:names:tc:SAML:metadata:ui" xmlns:ns3="http://www.w3.org/2000/09/xmldsig#" entityID="http://localhost:8080/Saml2/proxy_saml2_backend.xml">
+<ns0:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="true" WantAssertionsSigned="true">
+<ns0:Extensions>
+<ns1:DiscoveryResponse Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" Location="http://localhost:8080/Saml2/disco" index="1"/>
+<ns2:UIInfo>
+<ns2:DisplayName xml:lang="en">SP Display Name</ns2:DisplayName>
+<ns2:Description xml:lang="en">SP Description</ns2:Description>
+<ns2:Keywords xml:lang="se">Satosa SP-SE</ns2:Keywords>
+<ns2:Keywords xml:lang="en">Satosa SP-EN</ns2:Keywords>
+<ns2:Logo height="100" width="100">http://sp.logo.url/</ns2:Logo>
+<ns2:InformationURL xml:lang="en">http://sp.information.url/</ns2:InformationURL>
+<ns2:PrivacyStatementURL xml:lang="en">http://sp.privacy.url/</ns2:PrivacyStatementURL>
+</ns2:UIInfo>
+</ns0:Extensions>
+<ns0:KeyDescriptor use="signing">
+<ns3:KeyInfo>
+<ns3:X509Data>
+<ns3:X509Certificate>MIIDiTCCAnGgAwIBAgIUN55okGpwO9F4/frIDf4txh97OxowDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUcxEDAOBgNVBAgMB0thbXBhbGExEDAOBgNVBAcMB0thbXBhbGExITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNjA3MTUwNTUyMjlaFw0yNzA3MTUwNTUyMjlaMFQxCzAJBgNVBAYTAlVHMRAwDgYDVQQIDAdLYW1wYWxhMRAwDgYDVQQHDAdLYW1wYWxhMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCqmjXgeaOW6S0SZBF1dGh1npt36v4nDbFOJlz0zUBPPpLQ71QI2SnIvyy0MjVuj+r0QN7wr0JMS/4MjReU3AlUkUvnNC2JkA1vMQFbweu+yD7Y7Pk6C1/Vnw+Hcct+CUfsq496LY41JpsEyNfVp4rnT4vn8lz4gdd+kOvC+b6Sh3whtBI199LBZD/QEIW9jK0SUiYr/klL37Nr4yLO4dfVgAusbhLOcOJzZ16m/oUUHdy4NJaWCGPVsu1UL66MFF83RQL2nWnowCZJFbluqKmKnoJclD+Y70VJ3J/03m6uUyIy0sSLcrLyHf0ZHHnUaIcJBRo0nbfOHy04asMmft/LAgMBAAGjUzBRMB0GA1UdDgQWBBRMi/xfiwwCtf31Fn7JC/oEGE/eyTAfBgNVHSMEGDAWgBRMi/xfiwwCtf31Fn7JC/oEGE/eyTAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAesrJsjPEwBJWbv1FVIney04GjiYP/L2yLfV0e+UDQRBUv8mAQPTkeCObv70SybY+c9RRuQpCI/rpcO0mePCKgocGjbYERD++SXAelsoJEu8apgmRn81Qm5PYQqTn6mMMFq/rETMny0QEd4qh2/cmOBMABMX4XnkE/IxMFWB6ZybpEHy8a7fr5jtUUtcAAk/QCNEAqUpnE+TWN5kMXi0O/pPoYSxVH1TU8IeGcn9vK/xU9lPMIKW5OBJHgpHGTAsyynm78Ph+nCxD21DrUIOGtppmKAjYqFyDPm5qK23lWEsmeb9JB1MI5wSLDOEJPqoKu2bxQReSjVCqYsF6lQDpv</ns3:X509Certificate>
+</ns3:X509Data>
+</ns3:KeyInfo>
+</ns0:KeyDescriptor>
+<ns0:KeyDescriptor use="encryption">
+<ns3:KeyInfo>
+<ns3:X509Data>
+<ns3:X509Certificate>MIIDiTCCAnGgAwIBAgIUN55okGpwO9F4/frIDf4txh97OxowDQYJKoZIhvcNAQELBQAwVDELMAkGA1UEBhMCVUcxEDAOBgNVBAgMB0thbXBhbGExEDAOBgNVBAcMB0thbXBhbGExITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNjA3MTUwNTUyMjlaFw0yNzA3MTUwNTUyMjlaMFQxCzAJBgNVBAYTAlVHMRAwDgYDVQQIDAdLYW1wYWxhMRAwDgYDVQQHDAdLYW1wYWxhMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCqmjXgeaOW6S0SZBF1dGh1npt36v4nDbFOJlz0zUBPPpLQ71QI2SnIvyy0MjVuj+r0QN7wr0JMS/4MjReU3AlUkUvnNC2JkA1vMQFbweu+yD7Y7Pk6C1/Vnw+Hcct+CUfsq496LY41JpsEyNfVp4rnT4vn8lz4gdd+kOvC+b6Sh3whtBI199LBZD/QEIW9jK0SUiYr/klL37Nr4yLO4dfVgAusbhLOcOJzZ16m/oUUHdy4NJaWCGPVsu1UL66MFF83RQL2nWnowCZJFbluqKmKnoJclD+Y70VJ3J/03m6uUyIy0sSLcrLyHf0ZHHnUaIcJBRo0nbfOHy04asMmft/LAgMBAAGjUzBRMB0GA1UdDgQWBBRMi/xfiwwCtf31Fn7JC/oEGE/eyTAfBgNVHSMEGDAWgBRMi/xfiwwCtf31Fn7JC/oEGE/eyTAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAesrJsjPEwBJWbv1FVIney04GjiYP/L2yLfV0e+UDQRBUv8mAQPTkeCObv70SybY+c9RRuQpCI/rpcO0mePCKgocGjbYERD++SXAelsoJEu8apgmRn81Qm5PYQqTn6mMMFq/rETMny0QEd4qh2/cmOBMABMX4XnkE/IxMFWB6ZybpEHy8a7fr5jtUUtcAAk/QCNEAqUpnE+TWN5kMXi0O/pPoYSxVH1TU8IeGcn9vK/xU9lPMIKW5OBJHgpHGTAsyynm78Ph+nCxD21DrUIOGtppmKAjYqFyDPm5qK23lWEsmeb9JB1MI5wSLDOEJPqoKu2bxQReSjVCqYsF6lQDpv</ns3:X509Certificate>
+</ns3:X509Data>
+</ns3:KeyInfo>
+</ns0:KeyDescriptor>
+<ns0:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/Saml2/acs/post" index="1"/>
+</ns0:SPSSODescriptor>
+<ns0:Organization>
+<ns0:OrganizationName xml:lang="en">Example Identities Org.</ns0:OrganizationName>
+<ns0:OrganizationDisplayName xml:lang="en">Example Identities</ns0:OrganizationDisplayName>
+<ns0:OrganizationURL xml:lang="en">http://www.example.com</ns0:OrganizationURL>
+</ns0:Organization>
+<ns0:ContactPerson contactType="technical">
+<ns0:GivenName>Technical</ns0:GivenName>
+<ns0:EmailAddress>mailto:technical@example.com</ns0:EmailAddress>
+</ns0:ContactPerson>
+<ns0:ContactPerson contactType="support">
+<ns0:GivenName>Support</ns0:GivenName>
+<ns0:EmailAddress>mailto:support@example.com</ns0:EmailAddress>
+</ns0:ContactPerson>
+<ns0:ContactPerson xmlns:remd="http://refeds.org/metadata" contactType="other" remd:contactType="http://refeds.org/metadata/contactType/security">
+<ns0:GivenName>Security</ns0:GivenName>
+<ns0:EmailAddress>mailto:security@example.com</ns0:EmailAddress>
+</ns0:ContactPerson>
+</ns0:EntityDescriptor>
