@@ -79,13 +79,24 @@ def sso() -> ResponseReturnValue:
     return render_template("login.html")
 
 
+def authenticate_user(username: str, password: str) -> dict[str, str] | None:
+    """Look up a user and verify their password.
+
+    Returns the user record if credentials are valid, else None.
+    """
+    user = USERS.get(username)
+    if user is None or user["password"] != password:
+        return None
+    return user
+
+
 @app.route("/login", methods=["POST"])
 def login() -> ResponseReturnValue:
     """Authenticate the user and issue a signed SAML response."""
     username = request.form["username"]
     password = request.form["password"]
 
-    user = USERS.get(username)
+    user = authenticate_user(username, password)
 
     if user is None:
         return (
