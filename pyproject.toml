@@ -15,7 +15,8 @@ dev = [
     "flake8",
     "mypy",
     "pytest",
-    "pre-commit"
+    "pre-commit",
+    "build"
 ]
 
 [tool.black]
