@@ -24,8 +24,12 @@ jobs:
           sudo apt-get install -y libxml2-dev libxmlsec1-dev \
               libxmlsec1-openssl pkg-config
 
-      - name: Run pre-commit hooks
-        uses: pre-commit/action@v3.0.1
+      - name: Set up environment
+        run: make setup
+
+      - name: Lint
+        run: make lint
+
 
   test:
     runs-on: ubuntu-latest
