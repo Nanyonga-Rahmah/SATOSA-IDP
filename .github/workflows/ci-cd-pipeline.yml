@@ -1,0 +1,53 @@
+name: Continuous Integration
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+permissions: read-all
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev libxmlsec1-dev \
+              libxmlsec1-openssl pkg-config
+
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.1
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev libxmlsec1-dev \
+              libxmlsec1-openssl pkg-config
+
+      - name: Set up environment
+        run: make setup
+
+      - name: Run tests
+        run: make test
+
+  
