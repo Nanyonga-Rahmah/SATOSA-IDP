@@ -1,7 +1,7 @@
-<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ns1="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" xmlns:ns2="urn:oasis:names:tc:SAML:metadata:ui" xmlns:ns3="http://www.w3.org/2000/09/xmldsig#" entityID="http://localhost:8080/Saml2/proxy_saml2_backend.xml">
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ns1="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" xmlns:ns2="urn:oasis:names:tc:SAML:metadata:ui" xmlns:ns3="http://www.w3.org/2000/09/xmldsig#" entityID="https://satosa-latest.onrender.com/Saml2/proxy_saml2_backend.xml">
 <ns0:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="true" WantAssertionsSigned="true">
 <ns0:Extensions>
-<ns1:DiscoveryResponse Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" Location="http://localhost:8080/Saml2/disco" index="1"/>
+<ns1:DiscoveryResponse Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" Location="https://satosa-latest.onrender.com/Saml2/disco" index="1"/>
 <ns2:UIInfo>
 <ns2:DisplayName xml:lang="en">SP Display Name</ns2:DisplayName>
 <ns2:Description xml:lang="en">SP Description</ns2:Description>
@@ -26,7 +26,7 @@
 </ns3:X509Data>
 </ns3:KeyInfo>
 </ns0:KeyDescriptor>
-<ns0:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/Saml2/acs/post" index="1"/>
+<ns0:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://satosa-latest.onrender.com/Saml2/acs/post" index="1"/>
 </ns0:SPSSODescriptor>
 <ns0:Organization>
 <ns0:OrganizationName xml:lang="en">Example Identities Org.</ns0:OrganizationName>
