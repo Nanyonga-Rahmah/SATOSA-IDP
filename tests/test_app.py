@@ -1,4 +1,4 @@
-from idp.app import create_saml_server
+from idp.app import create_saml_server ,authenticate_user
 from idp.config import CONFIG
 
 
