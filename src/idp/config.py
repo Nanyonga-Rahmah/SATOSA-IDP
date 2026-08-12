@@ -23,6 +23,16 @@ CONFIG: dict[str, object] = {
                         BINDING_HTTP_POST,
                     ),
                 ],
+                 "single_sign_out_service": [
+                    (
+                        "https://idp-latest.onrender.com/slo",
+                        BINDING_HTTP_REDIRECT,
+                    ),
+                    (
+                        "https://idp-latest.onrender.com/slo",
+                        BINDING_HTTP_POST,
+                    ),
+                ],
             },
             "policy": {
                 "default": {
