@@ -1,4 +1,4 @@
-from idp.app import create_saml_server ,authenticate_user
+from idp.app import create_saml_server ,authenticate_user,create_session,get_session_user
 from idp.config import CONFIG
 
 
@@ -30,17 +30,22 @@ def test_authenticate_unknown_user():
 
 def test_authenticated_user_gets_session():
     user = authenticate_user("rahmah", "password123")
-    session=create_session(user)
-    assert session is not None
+    session_id=create_session(user)
+    assert session_id is not None
 
 def test_unauthenticated_user_does_not_get_session():
     user = authenticate_user("rahmah", "wrong")
-    session=create_session(user)
-    assert session is None
+    session_id=create_session(user)
+    assert session_id is None
 
 def test_session_belongs_to_authenticated_user():
     user = authenticate_user("rahmah", "password123")
     session_id=create_session(user)
     assert get_session_user(session_id) == "rahmah"       
-       
+
+def test_metadata_returns_xml(client) -> None:
+    """The metadata endpoint should return valid-looking XML."""
+    response = client.get("/metadata")
+    assert response.status_code == 200
+    assert b"EntityDescriptor" in response.data       
     
