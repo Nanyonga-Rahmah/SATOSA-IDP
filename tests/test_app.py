@@ -27,4 +27,20 @@ def test_authenticate_unknown_user():
     response = authenticate_user("nobody", "anything")
 
     assert response is None    
+
+def test_authenticated_user_gets_session():
+    user = authenticate_user("rahmah", "password123")
+    session=create_session(user)
+    assert session is not None
+
+def test_unauthenticated_user_does_not_get_session():
+    user = authenticate_user("rahmah", "wrong")
+    session=create_session(user)
+    assert session is None
+
+def test_session_belongs_to_authenticated_user():
+    user = authenticate_user("rahmah", "password123")
+    session_id=create_session(user)
+    assert get_session_user(session_id) == "rahmah"       
+       
     
