@@ -1,3 +1,5 @@
+from flask import session
+
 from idp.app import create_saml_server ,authenticate_user,create_session,get_session_user
 from idp.config import CONFIG
 
@@ -49,15 +51,20 @@ def test_metadata_returns_xml(client) -> None:
     assert response.status_code == 200
     assert b"EntityDescriptor" in response.data    
 
+def test_sso_receives_a_samlrequest(client)->None:
+    response = client.get("/sso", query_string={"SAMLRequest": "dummy"})
+    assert response.status_code == 200
+
 def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
     """A successful login should return a 200K response and create a session for the user."""
     with client.session_transaction() as session:
-         session["saml_request"] = "dummy"
-         session["relay_state"] = "dummy"
-         session["sp_info"] = {}
+        session["saml_request"] = "dummy"
+        session["relay_state"] = "dummy"
+        session["sp_info"] = {}
+
     response = client.post(
         "/login",
         data={"username": "rahmah", "password": "password123"},
     )
-    assert response.status_code == 200               
+    assert response.status_code == 200
     
