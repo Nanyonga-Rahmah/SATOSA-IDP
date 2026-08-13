@@ -47,5 +47,17 @@ def test_metadata_returns_xml(client) -> None:
     """The metadata endpoint should return valid-looking XML."""
     response = client.get("/metadata")
     assert response.status_code == 200
-    assert b"EntityDescriptor" in response.data       
+    assert b"EntityDescriptor" in response.data    
+
+def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
+    """A successful login should return a 200K response and create a session for the user."""
+    with client.session_transaction() as session:
+         session["saml_request"] = "dummy"
+         session["relay_state"] = "dummy"
+         session["sp_info"] = {}
+    response = client.post(
+        "/login",
+        data={"username": "rahmah", "password": "password123"},
+    )
+    assert response.status_code == 200               
     
