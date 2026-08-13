@@ -46,4 +46,32 @@ def metadata() -> ResponseReturnValue:
     with open(str(PROJECT_ROOT / "metadata" / "idp-metadata.xml")) as f:
         xml = f.read()
 
-    return xml, 200, {"Content-Type": "application/xml"}      
+    return xml, 200, {"Content-Type": "application/xml"}    
+
+
+@app.route("/sso", methods=["GET"])
+def sso() -> ResponseReturnValue:
+    """ Extract saml request from the request"""
+    saml_request = request.args.get("SAMLRequest")
+    saml_relay_state = request.args.get("RelayState")
+
+    if saml_request:
+      return "SAMLRequest received", 200
+    else:
+        return "Missing SAMLRequest", 400
+
+@app.route("/login", methods=["POST"])
+def login() -> ResponseReturnValue:
+    """Handle user login and create a session if credentials are valid."""
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    user = authenticate_user(username, password)
+    if user:
+        session_id = create_session(user)
+        return f"Login successful. Session ID: {session_id}", 200
+    else:
+        return "Invalid username or password", 401
+
+       
+      
