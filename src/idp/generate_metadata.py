@@ -3,7 +3,7 @@ from pathlib import Path
 from saml2.config import IdPConfig
 from saml2.metadata import create_metadata_string
 
-from .config import CONFIG
+from config import CONFIG
 
 _PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 

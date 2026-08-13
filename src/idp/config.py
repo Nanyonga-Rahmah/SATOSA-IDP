@@ -7,32 +7,40 @@ from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 _PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 CONFIG: dict[str, object] = {
-    "entityid": "https://idp-latest.onrender.com/idp",
+    # "entityid": "https://idp-latest.onrender.com/idp",
+    "entityid":"http://127.0.0.1:9000",
     "key_file": str(_PROJECT_ROOT / "certs" / "idp.key"),
     "cert_file": str(_PROJECT_ROOT / "certs" / "idp.crt"),
     "service": {
         "idp": {
             "endpoints": {
                 "single_sign_on_service": [
-                    (
-                        "https://idp-latest.onrender.com/sso",
-                        BINDING_HTTP_REDIRECT,
-                    ),
-                    (
-                        "https://idp-latest.onrender.com/sso",
-                        BINDING_HTTP_POST,
-                    ),
+                    # (
+                    #     "https://idp-latest.onrender.com/sso",
+                    #     BINDING_HTTP_REDIRECT,
+                    # ),
+                    ("http://localhost:9000/sso", BINDING_HTTP_REDIRECT),
+                    ("http://localhost:9000/sso", BINDING_HTTP_POST),
+                    # (
+                    #     "https://idp-latest.onrender.com/sso",
+                    #     BINDING_HTTP_POST,
+                    # ),
                 ],
-                 "single_sign_out_service": [
-                    (
-                        "https://idp-latest.onrender.com/slo",
-                        BINDING_HTTP_REDIRECT,
-                    ),
-                    (
-                        "https://idp-latest.onrender.com/slo",
-                        BINDING_HTTP_POST,
-                    ),
-                ],
+                "single_logout_service": [
+                 
+                    ("http://localhost:9000/slo", BINDING_HTTP_REDIRECT),
+                    ("http://localhost:9000/slo", BINDING_HTTP_POST),
+                     ]
+                #  "single_sign_out_service": [
+                #     (
+                #         "https://idp-latest.onrender.com/slo",
+                #         BINDING_HTTP_REDIRECT,
+                #     ),
+                #     (
+                #         "https://idp-latest.onrender.com/slo",
+                #         BINDING_HTTP_POST,
+                #     ),
+                # ],
             },
             "policy": {
                 "default": {
