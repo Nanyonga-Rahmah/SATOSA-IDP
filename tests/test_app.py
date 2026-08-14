@@ -2,8 +2,17 @@ from flask import session
 
 from idp.app import create_saml_server ,authenticate_user,create_session,get_session_user
 from idp.config import CONFIG
-import base64
-import zlib
+
+from pytest import mark
+
+VALID_SAML_REQUEST = """<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="ONELOGIN_809707f0030a5d00620c9d9df97f627afe9dcc24" Version="2.0" ProviderName="SP test" IssueInstant="2014-07-16T23:52:45Z" Destination="http://idp.example.com/SSOService.php" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" AssertionConsumerServiceURL="http://sp.example.com/demo1/index.php?acs">
+  <saml:Issuer>http://sp.example.com/demo1/metadata.php</saml:Issuer>
+  <samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" AllowCreate="true"/>
+  <samlp:RequestedAuthnContext Comparison="exact">
+    <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
+  </samlp:RequestedAuthnContext>
+</samlp:AuthnRequest>"""
+INVALID_SAML_REQUEST = "fake-request"
 
 def test_idp_uses_configured_entity_id():
     server = create_saml_server()
@@ -56,13 +65,13 @@ def test_sso_receives_a_samlrequest(client)->None:
     response = client.get("/sso", query_string={"SAMLRequest": "dummy"})
     assert response.status_code == 200
 
-def test_if_sso_receives_a_valid_samlrequest(client)->None:
-    response = client.get("/sso", query_string={"SAMLRequest": "dummy"})
-    query_string = response.request.query_string.decode("utf-8")
-
-    decoded = base64.b64decode(query_string)
-    xml_data = zlib.decompress(decoded, -15).decode("utf-8")
-    print(f"Query string: {query_string}")
+@mark.parametrize("saml_request ,expected_value",[
+    (VALID_SAML_REQUEST, 200),
+    (INVALID_SAML_REQUEST, 400)
+])
+def test_if_sso_receives_a_valid_samlrequest(client, saml_request, expected_value)->None:
+    response = client.get("/sso", query_string={"SAMLRequest": saml_request})
+    assert response.status_code == expected_value
 
     
 
