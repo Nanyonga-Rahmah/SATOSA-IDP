@@ -5,13 +5,7 @@ from idp.config import CONFIG
 
 from pytest import mark
 
-VALID_SAML_REQUEST = """<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="ONELOGIN_809707f0030a5d00620c9d9df97f627afe9dcc24" Version="2.0" ProviderName="SP test" IssueInstant="2014-07-16T23:52:45Z" Destination="http://idp.example.com/SSOService.php" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" AssertionConsumerServiceURL="http://sp.example.com/demo1/index.php?acs">
-  <saml:Issuer>http://sp.example.com/demo1/metadata.php</saml:Issuer>
-  <samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" AllowCreate="true"/>
-  <samlp:RequestedAuthnContext Comparison="exact">
-    <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
-  </samlp:RequestedAuthnContext>
-</samlp:AuthnRequest>"""
+VALID_SAML_REQUEST = "fVHLTsMwEPwVy/cQJ6LQrpJIgQqoVETUhB56M6lLLSV28W54fT1OykNIVY47mtmZnU0MCsg72puVeukUEntvG4Pg4ZR3zoCVqP0oW4VANZT5/RLiMwEHZ8nWtuG/gmhcIBGVI20NZ4t5yvU2aMVs7fJd/Da5dctN/DnnbK0cekrKvcLzEDu1MEjSkIdEfBGIaRCdV5GAyQyiyw1nc59ZG0mDak90gDBsbC2bvUWCmRAiRLScFd95r7TZavM8nvXpSEK4q6oiKB7KirP8J/+1Ndi1ypXKvepaPa6WJ4ynvbGskWeJbwaGSxy7sa6VNO7dI76c3UAFZUjTB89OGiTh3+6sH/6/MvsC"
 INVALID_SAML_REQUEST = "fake-request"
 
 def test_idp_uses_configured_entity_id():
@@ -61,19 +55,23 @@ def test_metadata_returns_xml(client) -> None:
     assert response.status_code == 200
     assert b"EntityDescriptor" in response.data    
 
-def test_sso_receives_a_samlrequest(client)->None:
-    response = client.get("/sso", query_string={"SAMLRequest": "dummy"})
-    assert response.status_code == 200
+def test_sso_rejects_invalid_samlrequest(client) -> None:
+    response = client.get(
+        "/sso",
+        query_string={"SAMLRequest": "dummy"}
+    )
+
+    assert response.status_code == 400
 
 @mark.parametrize("saml_request ,expected_value",[
     (VALID_SAML_REQUEST, 200),
     (INVALID_SAML_REQUEST, 400)
 ])
-def test_if_sso_receives_a_valid_samlrequest(client, saml_request, expected_value)->None:
+def test_sso_validates_saml_requests(client, saml_request, expected_value)->None:
     response = client.get("/sso", query_string={"SAMLRequest": saml_request})
     assert response.status_code == expected_value
 
-    
+   
 
 def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
     """A successful login should return a 200K response and create a session for the user."""
