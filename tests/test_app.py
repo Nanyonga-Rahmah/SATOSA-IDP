@@ -2,7 +2,8 @@ from flask import session
 
 from idp.app import create_saml_server ,authenticate_user,create_session,get_session_user
 from idp.config import CONFIG
-
+import base64
+import zlib
 
 def test_idp_uses_configured_entity_id():
     server = create_saml_server()
@@ -54,6 +55,16 @@ def test_metadata_returns_xml(client) -> None:
 def test_sso_receives_a_samlrequest(client)->None:
     response = client.get("/sso", query_string={"SAMLRequest": "dummy"})
     assert response.status_code == 200
+
+def test_if_sso_receives_a_valid_samlrequest(client)->None:
+    response = client.get("/sso", query_string={"SAMLRequest": "dummy"})
+    query_string = response.request.query_string.decode("utf-8")
+
+    decoded = base64.b64decode(query_string)
+    xml_data = zlib.decompress(decoded, -15).decode("utf-8")
+    print(f"Query string: {query_string}")
+
+    
 
 def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
     """A successful login should return a 200K response and create a session for the user."""
