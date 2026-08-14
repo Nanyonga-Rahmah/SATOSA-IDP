@@ -51,14 +51,22 @@ def metadata() -> ResponseReturnValue:
 
 @app.route("/sso", methods=["GET"])
 def sso() -> ResponseReturnValue:
-    """ Extract saml request from the request"""
+    """Handle an incoming SAML authentication request."""
+
     saml_request = request.args.get("SAMLRequest")
     saml_relay_state = request.args.get("RelayState")
 
-    if saml_request:
-       return render_template("login.html") , 200
-    else:
+    if not saml_request:
         return "Missing SAMLRequest", 400
+
+    try:
+        response = create_saml_server().parse_authn_request(
+            saml_request
+        )
+    except Exception:
+        return "Invalid SAMLRequest", 400
+
+    return render_template("login.html"), 200
 
        
     
