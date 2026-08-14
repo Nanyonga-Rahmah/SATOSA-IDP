@@ -56,9 +56,13 @@ def sso() -> ResponseReturnValue:
     saml_relay_state = request.args.get("RelayState")
 
     if saml_request:
-      return "SAMLRequest received", 200
+       return render_template("login.html") , 200
     else:
         return "Missing SAMLRequest", 400
+
+       
+    
+
 
 @app.route("/login", methods=["POST"])
 def login() -> ResponseReturnValue:
@@ -72,6 +76,10 @@ def login() -> ResponseReturnValue:
         return f"Login successful. Session ID: {session_id}", 200
     else:
         return "Invalid username or password", 401
+
+
+if __name__ == "__main__":
+     app.run(debug=True, host="0.0.0.0", port=9000)
 
        
       
