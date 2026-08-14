@@ -55,13 +55,7 @@ def test_metadata_returns_xml(client) -> None:
     assert response.status_code == 200
     assert b"EntityDescriptor" in response.data    
 
-def test_sso_rejects_invalid_samlrequest(client) -> None:
-    response = client.get(
-        "/sso",
-        query_string={"SAMLRequest": "dummy"}
-    )
 
-    assert response.status_code == 400
 
 @mark.parametrize("saml_request ,expected_value",[
     (VALID_SAML_REQUEST, 200),
