@@ -65,18 +65,28 @@ def test_sso_validates_saml_requests(client, saml_request, expected_value)->None
     response = client.get("/sso", query_string={"SAMLRequest": saml_request})
     assert response.status_code == expected_value
 
+def test_idp_creates_response_args_for_authn_request():
+    server = create_saml_server()
+
+    parsed_request = server.parse_authn_request(
+        VALID_SAML_REQUEST
+    )
+
+    authn_request = parsed_request.message
+
+    sp_info = server.response_args(authn_request)
+
+    assert sp_info is not None
+
+    
    
 
 def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
     """A successful login should return a 200K response and create a session for the user."""
-    with client.session_transaction() as session:
-        session["saml_request"] = "dummy"
-        session["relay_state"] = "dummy"
-        session["sp_info"] = {}
-
     response = client.post(
         "/login",
         data={"username": "rahmah", "password": "password123"},
     )
     assert response.status_code == 200
+    assert b"Session ID:" in response.data
     
