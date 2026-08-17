@@ -97,4 +97,38 @@ def test_login_does_not_create_session_for_invalid_credentials(client) -> None:
         data={"username": "rahmah", "password": "wrong"},
     )
     assert response.status_code == 401
-    assert b"Session ID:" not in response.data        
+    assert b"Session ID:" not in response.data   
+
+def test_idp_creates_a_saml_response_for_valid_requests(client) -> None:
+    server = create_saml_server()
+    saml_request = VALID_SAML_REQUEST
+    parsed_request = server.parse_authn_request(saml_request)
+    authn_request = parsed_request.message
+    sp_info = server.response_args(authn_request)
+    print(sp_info)
+   
+    created_response=server.create_authn_response(
+        identity={"username": "rahmah"},
+        in_response_to=sp_info["in_response_to"],
+        destination=sp_info["destination"],
+        sp_entity_id=sp_info["sp_entity_id"],
+        )
+     
+    assert created_response is not None
+
+
+def test_login_creates_a_saml_response_for_valid_credentials(client):
+    with client.session_transaction() as session:
+        session["saml_request"] = VALID_SAML_REQUEST
+
+    response = client.post(
+        "/login",
+        data={
+            "username": "rahmah",
+            "password": "password123",
+        },
+    )
+
+    assert response.status_code == 200
+
+    
