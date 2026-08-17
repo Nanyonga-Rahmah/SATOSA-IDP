@@ -82,7 +82,7 @@ def login() -> ResponseReturnValue:
 
     user = authenticate_user(username, password)
     if user:
-        # session_id = create_session(user)
+        session_id = create_session(user)
         return f"Login successful. Session ID: {session_id}", 200
     else:
         return "Invalid username or password", 401
