@@ -63,6 +63,8 @@ def sso() -> ResponseReturnValue:
         response = create_saml_server().parse_authn_request(
             saml_request
         )
+        sp_info = create_saml_server().response_args(authn_request)
+
     except Exception:
         return "Invalid SAMLRequest", 400
 
@@ -80,7 +82,7 @@ def login() -> ResponseReturnValue:
 
     user = authenticate_user(username, password)
     if user:
-        session_id = create_session(user)
+        # session_id = create_session(user)
         return f"Login successful. Session ID: {session_id}", 200
     else:
         return "Invalid username or password", 401

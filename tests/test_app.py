@@ -89,4 +89,12 @@ def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
     )
     assert response.status_code == 200
     assert b"Session ID:" in response.data
-    
+
+def test_login_does_not_create_session_for_invalid_credentials(client) -> None:
+    """An unsuccessful login should return a 401 response and not create a session."""
+    response = client.post(
+        "/login",
+        data={"username": "rahmah", "password": "wrong"},
+    )
+    assert response.status_code == 401
+    assert b"Session ID:" not in response.data        
