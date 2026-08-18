@@ -9,6 +9,7 @@ from .config import CONFIG
 
 SESSIONS = {}
 app = Flask(__name__)
+app.secret_key = "test-key"
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
@@ -63,7 +64,11 @@ def sso() -> ResponseReturnValue:
         response = create_saml_server().parse_authn_request(
             saml_request
         )
+        authn_request = response.message
         sp_info = create_saml_server().response_args(authn_request)
+        session["sp_info"] = sp_info
+        session["saml_request"] = saml_request
+        session["relay_state"] = saml_relay_state
 
     except Exception:
         return "Invalid SAMLRequest", 400
@@ -72,20 +77,44 @@ def sso() -> ResponseReturnValue:
 
        
     
-
-
 @app.route("/login", methods=["POST"])
 def login() -> ResponseReturnValue:
-    """Handle user login and create a session if credentials are valid."""
+    """Authenticate the user and create a SAML response."""
+
     username = request.form.get("username")
     password = request.form.get("password")
 
     user = authenticate_user(username, password)
-    if user:
-        session_id = create_session(user)
-        return f"Login successful. Session ID: {session_id}", 200
-    else:
+
+    if user is None:
         return "Invalid username or password", 401
+
+    session_id = create_session(user)
+
+    saml_request = session["saml_request"]
+    sp_info = session["sp_info"]
+
+    parsed_request = create_saml_server().parse_authn_request(
+        saml_request,
+    )
+
+    authn_request = parsed_request.message
+
+    saml_response = create_saml_server().create_authn_response(
+        identity={
+            "givenName": [user["username"]],
+        },
+        in_response_to=sp_info["in_response_to"],
+        destination=sp_info["destination"],
+        sp_entity_id=sp_info["sp_entity_id"],
+        name_id_policy=sp_info["name_id_policy"],
+        sign_response=True,
+        sign_assertion=True,
+        encrypt_assertion=False,
+        encrypted_advice_attributes=False,
+    )
+
+    return str(saml_response)
 
 
 if __name__ == "__main__":
