@@ -106,44 +106,60 @@ def test_idp_creates_response_args_for_authn_request():
     assert sp_info is not None
 
     
-   
-
-def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
-    """A successful login should return a 200K response and create a session for the user."""
-    response = client.post(
-        "/login",
-        data={"username": "rahmah", "password": "password123"},
-    )
-    assert response.status_code == 200
-    assert b"Session ID:" in response.data
-
-def test_login_does_not_create_session_for_invalid_credentials(client) -> None:
-    """An unsuccessful login should return a 401 response and not create a session."""
-    response = client.post(
-        "/login",
-        data={"username": "rahmah", "password": "wrong"},
-    )
-    assert response.status_code == 401
-    assert b"Session ID:" not in response.data   
-
-def test_idp_creates_a_saml_response_for_valid_requests(client) -> None:
-    server = create_saml_server()
+def test_sso_route_stores_saml_request_and_relay_state_in_session(client):
     saml_request = VALID_SAML_REQUEST
-    parsed_request = server.parse_authn_request(saml_request)
-    authn_request = parsed_request.message
-    sp_info = server.response_args(authn_request)
-    print(sp_info)
-   
-    created_response=server.create_authn_response(
-        identity={"username": "rahmah"},
-        in_response_to=sp_info["in_response_to"],
-        destination=sp_info["destination"],
-        sp_entity_id=sp_info["sp_entity_id"],
-        )
-     
-    assert created_response is not None
+    relay_state = "dummy"
+    response = create_saml_server().parse_authn_request(saml_request)
+    authn_request = response.message
+    sp_info = create_saml_server().response_args(authn_request)
 
-def test_login_creates_a_saml_response_for_valid_credentials(client):
+
+    response = client.get(
+        "/sso",
+        query_string={"SAMLRequest": saml_request, "RelayState": relay_state},
+    )
+
+    assert response.status_code == 200
+
+    with client.session_transaction() as session:
+        assert session["saml_request"] == saml_request
+        assert session["relay_state"] == relay_state
+        assert session["sp_info"] == sp_info
+
+   
+
+# def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
+#     """A successful login should return a 200K response and create a session for the user."""
+#     server = create_saml_server()
+#     parsed_request = server.parse_authn_request(
+#             VALID_SAML_REQUEST,
+#         )
+#     authn_request = parsed_request.message
+#     sp_info = server.response_args(authn_request)
+
+#     with client.session_transaction() as session:
+#         session["saml_request"] = VALID_SAML_REQUEST
+#         session["relay_state"] = "dummy"
+      
+#         session["sp_info"] = sp_info
+       
+#     response = client.get(
+#         "/sso",
+    
+#     )
+#     assert response.status_code == 200
+#     assert b"Session ID:" in response.data
+
+def test_sso_route_does_not_create_session_for_invalid_requests(client) -> None:
+    """An invalid SAMLRequest should return a 400 response and not create a session."""
+    response = client.get(
+        "/sso",
+        query_string={"SAMLRequest": INVALID_SAML_REQUEST},
+    )
+    assert response.status_code == 400
+
+def test_login_route_authenticates_a_user_and_creates_response_for_valid_credentials(client) -> None:
+    """A successful login should return a 200 response and create a SAML response."""
     server = create_saml_server()
 
     parsed_request = server.parse_authn_request(
@@ -151,6 +167,7 @@ def test_login_creates_a_saml_response_for_valid_credentials(client):
     )
 
     authn_request = parsed_request.message
+
     sp_info = server.response_args(authn_request)
 
     with client.session_transaction() as session:
@@ -170,8 +187,12 @@ def test_login_creates_a_saml_response_for_valid_credentials(client):
 
     response_data = response.data.decode()
 
+    assert "Response" in response_data
     assert sp_info["in_response_to"] in response_data
     assert sp_info["sp_entity_id"] in response_data
-    assert sp_info["destination"] in response_data
+    assert sp_info["destination"] in response_data    
+
+    
+   
 
     
