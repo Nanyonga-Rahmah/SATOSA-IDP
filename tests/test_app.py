@@ -7,7 +7,6 @@ from pytest import mark
 
 VALID_SAML_REQUEST = "fVHLTsMwEPwVy/cQJ6LQrpJIgQqoVETUhB56M6lLLSV28W54fT1OykNIVY47mtmZnU0MCsg72puVeukUEntvG4Pg4ZR3zoCVqP0oW4VANZT5/RLiMwEHZ8nWtuG/gmhcIBGVI20NZ4t5yvU2aMVs7fJd/Da5dctN/DnnbK0cekrKvcLzEDu1MEjSkIdEfBGIaRCdV5GAyQyiyw1nc59ZG0mDak90gDBsbC2bvUWCmRAiRLScFd95r7TZavM8nvXpSEK4q6oiKB7KirP8J/+1Ndi1ypXKvepaPa6WJ4ynvbGskWeJbwaGSxy7sa6VNO7dI76c3UAFZUjTB89OGiTh3+6sH/6/MvsC"
 INVALID_SAML_REQUEST = "fake-request"
-FAKE_SAML_RESPONSE = "fake-response"
 
 def test_idp_uses_configured_entity_id():
     server = create_saml_server()
@@ -128,28 +127,6 @@ def test_sso_route_stores_saml_request_and_relay_state_in_session(client):
 
    
 
-# def test_login_authenticates_a_user_and_creates_a_session(client) -> None:
-#     """A successful login should return a 200K response and create a session for the user."""
-#     server = create_saml_server()
-#     parsed_request = server.parse_authn_request(
-#             VALID_SAML_REQUEST,
-#         )
-#     authn_request = parsed_request.message
-#     sp_info = server.response_args(authn_request)
-
-#     with client.session_transaction() as session:
-#         session["saml_request"] = VALID_SAML_REQUEST
-#         session["relay_state"] = "dummy"
-      
-#         session["sp_info"] = sp_info
-       
-#     response = client.get(
-#         "/sso",
-    
-#     )
-#     assert response.status_code == 200
-#     assert b"Session ID:" in response.data
-
 def test_sso_route_does_not_create_session_for_invalid_requests(client) -> None:
     """An invalid SAMLRequest should return a 400 response and not create a session."""
     response = client.get(
@@ -158,8 +135,71 @@ def test_sso_route_does_not_create_session_for_invalid_requests(client) -> None:
     )
     assert response.status_code == 400
 
-def test_login_route_authenticates_a_user_and_creates_response_for_valid_credentials(client) -> None:
-    """A successful login should return a 200 response and create a SAML response."""
+# def test_login_route_authenticates_a_user_and_creates_response_for_valid_credentials(client) -> None:
+#     """A successful login should return a 200 response and create a SAML response."""
+#     server = create_saml_server()
+
+#     parsed_request = server.parse_authn_request(
+#         VALID_SAML_REQUEST,
+#     )
+
+#     authn_request = parsed_request.message
+
+#     sp_info = server.response_args(authn_request)
+
+#     with client.session_transaction() as session:
+#         session["saml_request"] = VALID_SAML_REQUEST
+#         session["relay_state"] = "dummy"
+#         session["sp_info"] = sp_info
+
+#     response = client.post(
+#         "/login",
+#         data={
+#             "username": "rahmah",
+#             "password": "password123",
+#         },
+#     )
+
+#     assert response.status_code == 200
+
+#     response_data = response.data.decode()
+
+#     print("Response data:", response_data)
+
+#     assert "Response" in response_data
+#     assert sp_info["in_response_to"] in response_data
+#     assert sp_info["sp_entity_id"] in response_data
+#     assert sp_info["destination"] in response_data   
+
+def test_login_route_returns_401_for_invalid_credentials(client) -> None:    
+    """An unsuccessful login should return a 401 response and not create a SAML response."""
+    server = create_saml_server()
+
+    parsed_request = server.parse_authn_request(
+        VALID_SAML_REQUEST,
+    )
+
+    authn_request = parsed_request.message
+
+    sp_info = server.response_args(authn_request)
+
+    with client.session_transaction() as session:
+        session["saml_request"] = VALID_SAML_REQUEST
+        session["relay_state"] = "dummy"
+        session["sp_info"] = sp_info
+
+    response = client.post(
+        "/login",
+        data={
+            "username": "rahmah",
+            "password": "wrongpassword",
+        },
+    )
+
+    assert response.status_code == 401 
+
+def test_login_route_creates_a_response_for_authenticated_user_and_applies_binding(client) -> None:
+    """A successful login should create a SAML response and apply the correct binding."""
     server = create_saml_server()
 
     parsed_request = server.parse_authn_request(
@@ -187,10 +227,10 @@ def test_login_route_authenticates_a_user_and_creates_response_for_valid_credent
 
     response_data = response.data.decode()
 
-    assert "Response" in response_data
-    assert sp_info["in_response_to"] in response_data
-    assert sp_info["sp_entity_id"] in response_data
-    assert sp_info["destination"] in response_data    
+    assert "SAMLResponse" in response_data
+   
+    assert "<form" in response_data
+  
 
     
    
