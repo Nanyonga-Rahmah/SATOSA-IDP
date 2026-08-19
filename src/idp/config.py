@@ -15,31 +15,15 @@ CONFIG: dict[str, object] = {
         "idp": {
             "endpoints": {
                 "single_sign_on_service": [
-                    # (
-                    #     "https://idp-latest.onrender.com/sso",
-                    #     BINDING_HTTP_REDIRECT,
-                    # ),
+               
                     ("http://localhost:9000/sso", BINDING_HTTP_REDIRECT),
                     ("http://localhost:9000/sso", BINDING_HTTP_POST),
-                    # (
-                    #     "https://idp-latest.onrender.com/sso",
-                    #     BINDING_HTTP_POST,
-                    # ),
+               
                 ],
                 "single_logout_service": [
                     ("http://localhost:9000/slo", BINDING_HTTP_REDIRECT),
-                    ("http://localhost:9000/slo", BINDING_HTTP_POST),
                 ],
-                #  "single_sign_out_service": [
-                #     (
-                #         "https://idp-latest.onrender.com/slo",
-                #         BINDING_HTTP_REDIRECT,
-                #     ),
-                #     (
-                #         "https://idp-latest.onrender.com/slo",
-                #         BINDING_HTTP_POST,
-                #     ),
-                # ],
+             
             },
             "policy": {
                 "default": {

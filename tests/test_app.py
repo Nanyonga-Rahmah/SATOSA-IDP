@@ -202,3 +202,10 @@ def test_login_route_creates_a_response_for_authenticated_user_and_applies_bindi
     assert "SAMLResponse" in response_data
 
     assert "<form" in response_data
+
+
+def test_whether_the_slo_route_receives_a_saml_logout_request(client) :
+    response = client.get("/slo",query_string={"SAMLRequest": "dummy"})
+    assert response.status_code == 200
+
+ 
