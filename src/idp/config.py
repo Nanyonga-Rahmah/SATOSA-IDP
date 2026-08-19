@@ -8,7 +8,7 @@ _PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 CONFIG: dict[str, object] = {
     # "entityid": "https://idp-latest.onrender.com/idp",
-    "entityid":"http://127.0.0.1:9000",
+    "entityid": "http://127.0.0.1:9000",
     "key_file": str(_PROJECT_ROOT / "certs" / "idp.key"),
     "cert_file": str(_PROJECT_ROOT / "certs" / "idp.crt"),
     "service": {
@@ -27,10 +27,9 @@ CONFIG: dict[str, object] = {
                     # ),
                 ],
                 "single_logout_service": [
-                 
                     ("http://localhost:9000/slo", BINDING_HTTP_REDIRECT),
                     ("http://localhost:9000/slo", BINDING_HTTP_POST),
-                     ]
+                ],
                 #  "single_sign_out_service": [
                 #     (
                 #         "https://idp-latest.onrender.com/slo",
