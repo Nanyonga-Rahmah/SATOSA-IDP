@@ -5,6 +5,7 @@ import pytest
 from idp.app import app as flask_app
 from idp.app import create_saml_server
 
+
 @pytest.fixture
 def client():
     """Provide a Flask test client."""
@@ -12,15 +13,7 @@ def client():
     with flask_app.test_client() as client:
         yield client
 
+
 @pytest.fixture
 def server():
     return create_saml_server()
-
-
-
-
-
-
-
-    
-
