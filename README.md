@@ -39,9 +39,47 @@ idp/
 
 Clone the repository, then run:
 
+## Local Deployment
+
+Follow these steps to run the IdP locally.
+
+### 1. Clone the repository
+
+```sh
+git clone <repository-url>
+cd SATOSA-IDP
+```
+
+### 2. Install Dependencies
+
+```sh
+sudo apt-get update
+
+sudo apt-get install -y \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libxmlsec1-openssl \
+    pkg-config
+```
+
+
+### 3.Setup Python Environment
+
 ```sh
 make setup
 ```
+```sh
+source .venv/bin/activate
+```
+
+### 4.Start the idp
+
+```sh
+make run
+```
+This will run the idp on `http://localhost:9000` 
+
+
 
 This creates a virtual environment, installs the package in
 editable mode with development dependencies, and installs the
@@ -70,8 +108,7 @@ A mock in-memory user database is defined in `src/idp/app.py`:
 | Username | Password      |
 |----------|---------------|
 | rahmah   | password123   |
-| alice    | alice123      |
-| john     | john123       |
+
 
 
 
