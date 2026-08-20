@@ -15,15 +15,12 @@ CONFIG: dict[str, object] = {
         "idp": {
             "endpoints": {
                 "single_sign_on_service": [
-               
                     ("http://localhost:9000/sso", BINDING_HTTP_REDIRECT),
                     ("http://localhost:9000/sso", BINDING_HTTP_POST),
-               
                 ],
                 "single_logout_service": [
                     ("http://localhost:9000/slo", BINDING_HTTP_REDIRECT),
                 ],
-             
             },
             "policy": {
                 "default": {

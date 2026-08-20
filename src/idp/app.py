@@ -1,12 +1,14 @@
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from flask import Flask, render_template, request, session
 from flask.typing import ResponseReturnValue
+from saml2 import BINDING_HTTP_REDIRECT, saml
 from saml2.authn_context import PASSWORDPROTECTEDTRANSPORT
 from saml2.config import IdPConfig
 from saml2.server import Server
 
-from config import CONFIG
+from .config import CONFIG
 
 SESSIONS = {}
 app = Flask(__name__)
@@ -20,6 +22,40 @@ def create_saml_server():
 
 
 USERS = [{"username": "rahmah", "password": "password123"}]
+
+
+def create_valid_logout_request():
+    name_id = saml.NameID(
+        text="177e7137537c4f2fa87ffa2cb25d33436678c175a595af08474912a20af52268",
+        format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+        name_qualifier="http://127.0.0.1:9000",
+        sp_name_qualifier="http://localhost:8000",
+    )
+
+    message_id, logout_request = create_saml_server().create_logout_request(
+        destination="http://127.0.0.1:9000/slo",
+        issuer_entity_id="http://localhost:8000",
+        name_id=name_id,
+        sign=True,
+    )
+
+    http_info = create_saml_server().apply_binding(
+        BINDING_HTTP_REDIRECT,
+        str(logout_request),
+        destination="http://127.0.0.1:9000/slo",
+    )
+
+    return http_info
+
+
+http_info = create_valid_logout_request()
+print(http_info)
+location = next(
+    value for key, value in http_info["headers"] if key.lower() == "location"
+)
+
+parsed_url = urlparse(location)
+saml_request = parse_qs(parsed_url.query)["SAMLRequest"][0]
 
 
 def authenticate_user(username: str, password: str):
@@ -133,14 +169,25 @@ def login() -> ResponseReturnValue:
 
     return str(http_info["data"])
 
-@app.route("/slo",methods=["GET"])
+
+@app.route("/slo", methods=["GET"])
 def logout() -> ResponseReturnValue:
-    saml_logout_request = request.args.get("SAMLRequest") 
+    saml_request = request.args.get("SAMLRequest")
 
-    if not saml_logout_request:
-        return "Missing Request", 400  
+    if not saml_request:
+        return "Missing Request", 400
 
-    return "Request Recieved", 200    
+    try:
+        response = create_saml_server().parse_logout_request(
+            saml_request, BINDING_HTTP_REDIRECT
+        )
+
+    except Exception as exc:
+        print(type(exc))
+        print(exc)
+        return "Invalid SAMLRequest", 400
+
+    return "Request Recieved", 200
 
 
 if __name__ == "__main__":
