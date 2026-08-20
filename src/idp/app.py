@@ -24,40 +24,6 @@ def create_saml_server():
 USERS = [{"username": "rahmah", "password": "password123"}]
 
 
-def create_valid_logout_request():
-    name_id = saml.NameID(
-        text="177e7137537c4f2fa87ffa2cb25d33436678c175a595af08474912a20af52268",
-        format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
-        name_qualifier="http://127.0.0.1:9000",
-        sp_name_qualifier="http://localhost:8000",
-    )
-
-    message_id, logout_request = create_saml_server().create_logout_request(
-        destination="http://127.0.0.1:9000/slo",
-        issuer_entity_id="http://localhost:8000",
-        name_id=name_id,
-        sign=True,
-    )
-
-    http_info = create_saml_server().apply_binding(
-        BINDING_HTTP_REDIRECT,
-        str(logout_request),
-        destination="http://127.0.0.1:9000/slo",
-    )
-
-    return http_info
-
-
-http_info = create_valid_logout_request()
-print(http_info)
-location = next(
-    value for key, value in http_info["headers"] if key.lower() == "location"
-)
-
-parsed_url = urlparse(location)
-saml_request = parse_qs(parsed_url.query)["SAMLRequest"][0]
-
-
 def authenticate_user(username: str, password: str):
     """Authenticate a user by checking their username and password."""
     for user in USERS:
