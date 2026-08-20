@@ -35,9 +35,7 @@ idp/
 └── .pre-commit-config.yaml
 ```
 
-## Setup
 
-Clone the repository, then run:
 
 ## Local Deployment
 
@@ -85,18 +83,11 @@ This will run the idp on `http://localhost:9000` verify on `http://localhost:900
  ```
 
 
-
+<!-- 
 This creates a virtual environment, installs the package in
 editable mode with development dependencies, and installs the
 pre-commit hooks.
 
-## Running the IdP
-
-Start the Flask development server:
-
-```sh
-make run
-```
 
 The app listens on `http://localhost:9000` with the following
 routes:
@@ -112,7 +103,7 @@ A mock in-memory user database is defined in `src/idp/app.py`:
 
 | Username | Password      |
 |----------|---------------|
-| rahmah   | password123   |
+| rahmah   | password123   | -->
 
 
 
