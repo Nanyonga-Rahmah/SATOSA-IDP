@@ -77,7 +77,12 @@ source .venv/bin/activate
 ```sh
 make run
 ```
-This will run the idp on `http://localhost:9000` 
+This will run the idp on `http://localhost:9000` verify on `http://localhost:9000/metadata`
+
+### 5.Run the tests
+ ```sh
+ make test
+ ```
 
 
 
