@@ -1,9 +1,8 @@
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
 
 from flask import Flask, render_template, request, session
 from flask.typing import ResponseReturnValue
-from saml2 import BINDING_HTTP_REDIRECT, saml
+from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 from saml2.authn_context import PASSWORDPROTECTEDTRANSPORT
 from saml2.config import IdPConfig
 from saml2.server import Server
@@ -19,6 +18,9 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 def create_saml_server():
     return Server(config=IdPConfig().load(CONFIG))
+
+
+server = create_saml_server()
 
 
 USERS = [{"username": "rahmah", "password": "password123"}]
@@ -69,9 +71,9 @@ def sso() -> ResponseReturnValue:
         return "Missing SAMLRequest", 400
 
     try:
-        response = create_saml_server().parse_authn_request(saml_request)
+        response = server.parse_authn_request(saml_request)
         authn_request = response.message
-        sp_info = create_saml_server().response_args(authn_request)
+        sp_info = server.response_args(authn_request)
         session["sp_info"] = sp_info
         session["saml_request"] = saml_request
         session["relay_state"] = saml_relay_state
@@ -94,22 +96,13 @@ def login() -> ResponseReturnValue:
     if user is None:
         return "Invalid username or password", 401
 
-    session_id = create_session(user)
-
-    saml_request = session["saml_request"]
     relay_state = session["relay_state"]
     sp_info = session["sp_info"]
 
-    parsed_request = create_saml_server().parse_authn_request(
-        saml_request,
-    )
-
-    authn_request = parsed_request.message
-
-    saml_response = create_saml_server().create_authn_response(
+    saml_response = server.create_authn_response(
         authn={
             "class_ref": PASSWORDPROTECTEDTRANSPORT,
-            "authn_auth": create_saml_server().config.entityid,
+            "authn_auth": server.config.entityid,
         },
         identity={
             "givenName": [user["username"]],
@@ -124,8 +117,7 @@ def login() -> ResponseReturnValue:
         encrypted_advice_attributes=False,
     )
 
-    print(saml_response)
-    http_info = create_saml_server().apply_binding(
+    http_info = server.apply_binding(
         sp_info["binding"],
         str(saml_response),
         sp_info["destination"],
@@ -139,21 +131,48 @@ def login() -> ResponseReturnValue:
 @app.route("/slo", methods=["GET"])
 def logout() -> ResponseReturnValue:
     saml_request = request.args.get("SAMLRequest")
+    relay_state = request.args.get("RelayState")
 
     if not saml_request:
         return "Missing Request", 400
 
     try:
-        response = create_saml_server().parse_logout_request(
-            saml_request, BINDING_HTTP_REDIRECT
+
+        parsed_request = server.parse_logout_request(
+            saml_request,
+            BINDING_HTTP_REDIRECT,
         )
 
-    except Exception as exc:
-        print(type(exc))
-        print(exc)
-        return "Invalid SAMLRequest", 400
+        msg = parsed_request.message
 
-    return "Request Recieved", 200
+        if msg.name_id:
+            session.clear()
+
+        logout_response = server.create_logout_response(
+            msg,
+            [BINDING_HTTP_POST],
+        )
+
+        binding, destination = server.pick_binding(
+            "single_logout_service",
+            [BINDING_HTTP_POST],
+            "spsso",
+            parsed_request,
+        )
+
+        http_info = server.apply_binding(
+            binding,
+            str(logout_response),
+            destination,
+            relay_state or "",
+            response=True,
+        )
+
+        return http_info["data"], 200
+
+    except Exception:
+
+        return "Invalid SAMLRequest", 400
 
 
 if __name__ == "__main__":

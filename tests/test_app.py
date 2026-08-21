@@ -1,4 +1,3 @@
-from flask import session
 from pytest import mark
 
 from idp.app import (
@@ -10,10 +9,12 @@ from idp.app import (
 from idp.config import CONFIG
 
 VALID_SAML_REQUEST = "fVHLTsMwEPwVy/cQJ6LQrpJIgQqoVETUhB56M6lLLSV28W54fT1OykNIVY47mtmZnU0MCsg72puVeukUEntvG4Pg4ZR3zoCVqP0oW4VANZT5/RLiMwEHZ8nWtuG/gmhcIBGVI20NZ4t5yvU2aMVs7fJd/Da5dctN/DnnbK0cekrKvcLzEDu1MEjSkIdEfBGIaRCdV5GAyQyiyw1nc59ZG0mDak90gDBsbC2bvUWCmRAiRLScFd95r7TZavM8nvXpSEK4q6oiKB7KirP8J/+1Ndi1ypXKvepaPa6WJ4ynvbGskWeJbwaGSxy7sa6VNO7dI76c3UAFZUjTB89OGiTh3+6sH/6/MvsC"
-INVALID_SAML_REQUEST = "fake-request"
+INVALID_SAML_REQUEST = "fake-" "request"
 VALID_LOGOUT_REQUEST = (
-    "nZLLbsIwEEV/JfIeGDshDwsioQIlKn3w6qI7J3EgUrBpxpFov74OSFS0FYvKi5FH9849I3ugEPhcb3VjlvK9kWic475SyG1/"
-    "SJpacS2wtFexl8hNxlejxzlnXeCHWhud6YpcDPS2QSDK2pRaEScZD0mZdx4mwWy7WY8WczWd4mjySZxXWaOVDIl1WB1iIxOFRihjW8D8DoQdBmvKOFAO/"
+    "nZLLbsIwEEV/JfIeGDshDwsioQIlKn3w6qI7J3EgUrBpxpFov"
+    "74OSFS0FYvKi5FH9849I3ugEPhcb3VjlvK9kWic475SyG1/"
+    "SJpacS2wtFexl8hNxlejxzlnXeCHWhud6YpcDPS2QSDK2pRaEScZD0mZdx4mwWy7WY8Wc"
+    "zWd4mjySZxXWaOVDIl1WB1iIxOFRihjW8D8DoQdBmvKOFAO/"
     "htxxpa5VMKcXDtjDrzXq3Qmqp1GwyMA6GGlibOUAlsJiQcWlZ9G185U13thboO3HUtbnKRcKlOaDxL/igpt1KD3Pfuc82TNydhpy6IRVVmUsr5wUhZ0wR564iTO6uVv3XUI+Qe1qYXC0rKTOI9CmorQE2GRAYMwDcAr+jTwXJZlXl+AHwlGIae+G6Q+s8VjqRtGhesHfhCk5x3Pe7U7Al9JbB8tUbk8xjaTztwkie5nh3w7p8/bu01r+SE7t65+XvwF"
 )
 INVALID_LOGOUT_REQUEST = "fake-logout-request"
@@ -227,3 +228,38 @@ def test_the_slo_rejects_a_request_without_saml_request(client):
 def test_slo_validates_saml_requests(client, saml_request, expected_value) -> None:
     response = client.get("/slo", query_string={"SAMLRequest": saml_request})
     assert response.status_code == expected_value
+
+
+def test_slo_route_clears_user_session(client) -> None:
+    with client.session_transaction() as session:
+        session["user"] = "testuser"
+
+    response = client.get(
+        "/slo",
+        query_string={"SAMLRequest": VALID_LOGOUT_REQUEST},
+    )
+
+    assert response.status_code == 200
+
+    with client.session_transaction() as session:
+        assert "user" not in session
+
+
+def test_slo_route_returns_logout_response(client) -> None:
+    response = client.get(
+        "/slo",
+        query_string={"SAMLRequest": VALID_LOGOUT_REQUEST},
+    )
+
+    assert response.status_code == 200
+    assert 'name="SAMLResponse"' in response.data.decode()
+
+
+def test_slo_route_applies_binding(client) -> None:
+    response = client.get(
+        "/slo",
+        query_string={"SAMLRequest": VALID_LOGOUT_REQUEST},
+    )
+
+    assert response.status_code == 200
+    assert "<form" in response.data.decode()
