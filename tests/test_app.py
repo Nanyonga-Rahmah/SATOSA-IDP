@@ -8,7 +8,8 @@ from idp.app import (
 )
 from idp.config import CONFIG
 
-VALID_SAML_REQUEST = "fVHLTsMwEPwVy/cQJ6LQrpJIgQqoVETUhB56M6lLLSV28W54fT1OykNIVY47mtmZnU0MCsg72puVeukUEntvG4Pg4ZR3zoCVqP0oW4VANZT5/RLiMwEHZ8nWtuG/gmhcIBGVI20NZ4t5yvU2aMVs7fJd/Da5dctN/DnnbK0cekrKvcLzEDu1MEjSkIdEfBGIaRCdV5GAyQyiyw1nc59ZG0mDak90gDBsbC2bvUWCmRAiRLScFd95r7TZavM8nvXpSEK4q6oiKB7KirP8J/+1Ndi1ypXKvepaPa6WJ4ynvbGskWeJbwaGSxy7sa6VNO7dI76c3UAFZUjTB89OGiTh3+6sH/6/MvsC"
+# VALID_SAML_REQUEST = "fVHLTsMwEPwVy/cQJ6LQrpJIgQqoVETUhB56M6lLLSV28W54fT1OykNIVY47mtmZnU0MCsg72puVeukUEntvG4Pg4ZR3zoCVqP0oW4VANZT5/RLiMwEHZ8nWtuG/gmhcIBGVI20NZ4t5yvU2aMVs7fJd/Da5dctN/DnnbK0cekrKvcLzEDu1MEjSkIdEfBGIaRCdV5GAyQyiyw1nc59ZG0mDak90gDBsbC2bvUWCmRAiRLScFd95r7TZavM8nvXpSEK4q6oiKB7KirP8J/+1Ndi1ypXKvepaPa6WJ4ynvbGskWeJbwaGSxy7sa6VNO7dI76c3UAFZUjTB89OGiTh3+6sH/6/MvsC"
+# VALID_SAML_REQUEST=samlrequest
 INVALID_SAML_REQUEST = "fake-" "request"
 VALID_LOGOUT_REQUEST = (
     "nZLLbsIwEEV/JfIeGDshDwsioQIlKn3w6qI7J3EgUrBpxpFov"
@@ -20,15 +21,15 @@ VALID_LOGOUT_REQUEST = (
 INVALID_LOGOUT_REQUEST = "fake-logout-request"
 
 
-def test_idp_uses_configured_entity_id(server):
+def test_idp_uses_configured_entity_id(server, samlrequest):
 
     assert server.config.entityid == CONFIG["entityid"]
 
 
-def create_valid_saml_response(server):
+def create_valid_saml_response(server, samlrequest):
 
     parsed_request = server.parse_authn_request(
-        VALID_SAML_REQUEST,
+        samlrequest,
     )
 
     authn_request = parsed_request.message
@@ -98,18 +99,39 @@ def test_metadata_returns_xml(client) -> None:
     assert b"EntityDescriptor" in response.data
 
 
-@mark.parametrize(
-    "saml_request ,expected_value",
-    [(VALID_SAML_REQUEST, 200), (INVALID_SAML_REQUEST, 400)],
-)
-def test_sso_validates_saml_requests(client, saml_request, expected_value) -> None:
-    response = client.get("/sso", query_string={"SAMLRequest": saml_request})
-    assert response.status_code == expected_value
+# @mark.parametrize(
+#     "saml_request ,expected_value",
+#     [(samlrequest, 200), (INVALID_SAML_REQUEST, 400)],
+# )
+# def test_sso_validates_saml_requests(client, saml_request, expected_value) -> None:
+#     response = client.get("/sso", query_string={"SAMLRequest": saml_request})
+#     assert response.status_code == expected_value
 
 
-def test_idp_creates_response_args_for_authn_request(server):
+def test_sso_accepts_valid_saml_request(
+    client,
+    samlrequest,
+):
+    response = client.get(
+        "/sso",
+        query_string={"SAMLRequest": samlrequest},
+    )
 
-    parsed_request = server.parse_authn_request(VALID_SAML_REQUEST)
+    assert response.status_code == 200
+
+
+def test_sso_rejects_invalid_saml_request(client):
+    response = client.get(
+        "/sso",
+        query_string={"SAMLRequest": INVALID_SAML_REQUEST},
+    )
+
+    assert response.status_code == 400
+
+
+def test_idp_creates_response_args_for_authn_request(server, samlrequest):
+
+    parsed_request = server.parse_authn_request(samlrequest)
 
     authn_request = parsed_request.message
 
@@ -118,8 +140,8 @@ def test_idp_creates_response_args_for_authn_request(server):
     assert sp_info is not None
 
 
-def test_sso_route_stores_saml_request_and_relay_state_in_session(client):
-    saml_request = VALID_SAML_REQUEST
+def test_sso_route_stores_saml_request_and_relay_state_in_session(client, samlrequest):
+    saml_request = samlrequest
     relay_state = "dummy"
     response = create_saml_server().parse_authn_request(saml_request)
     authn_request = response.message
@@ -147,12 +169,12 @@ def test_sso_route_does_not_create_session_for_invalid_requests(client) -> None:
     assert response.status_code == 400
 
 
-def test_login_route_returns_401_for_invalid_credentials(client) -> None:
+def test_login_route_returns_401_for_invalid_credentials(client, samlrequest) -> None:
     """An unsuccessful login should return a 401 response and not create a SAML response."""
     server = create_saml_server()
 
     parsed_request = server.parse_authn_request(
-        VALID_SAML_REQUEST,
+        samlrequest,
     )
 
     authn_request = parsed_request.message
@@ -160,7 +182,7 @@ def test_login_route_returns_401_for_invalid_credentials(client) -> None:
     sp_info = server.response_args(authn_request)
 
     with client.session_transaction() as session:
-        session["saml_request"] = VALID_SAML_REQUEST
+        session["saml_request"] = samlrequest
         session["relay_state"] = "dummy"
         session["sp_info"] = sp_info
 
@@ -176,13 +198,13 @@ def test_login_route_returns_401_for_invalid_credentials(client) -> None:
 
 
 def test_login_route_creates_a_response_for_authenticated_user_and_applies_binding(
-    client,
+    client, samlrequest
 ) -> None:
     """A successful login should create a SAML response and apply the correct binding."""
     server = create_saml_server()
 
     parsed_request = server.parse_authn_request(
-        VALID_SAML_REQUEST,
+        samlrequest,
     )
 
     authn_request = parsed_request.message
@@ -190,7 +212,7 @@ def test_login_route_creates_a_response_for_authenticated_user_and_applies_bindi
     sp_info = server.response_args(authn_request)
 
     with client.session_transaction() as session:
-        session["saml_request"] = VALID_SAML_REQUEST
+        session["saml_request"] = samlrequest
         session["relay_state"] = "dummy"
         session["sp_info"] = sp_info
 
