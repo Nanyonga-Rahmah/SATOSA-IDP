@@ -1,7 +1,7 @@
 [project]
-name = "sp"
+name = "idp"
 version = "0.1.0"
-description = "SATOSA test SP"
+description = "SATOSA test IDP"
 requires-python = ">=3.11"
 dependencies = [
     "flask",
@@ -22,6 +22,8 @@ dev = [
 [tool.black]
 line-length = 88
 target-version = ["py311"]
+
+
 
 [tool.isort]
 profile = "black"

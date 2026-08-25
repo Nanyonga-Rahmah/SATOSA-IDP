@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Dict, List
 
 from flask import Flask, render_template, request, session
 from flask.typing import ResponseReturnValue
@@ -9,45 +10,29 @@ from saml2.server import Server
 
 from .config import CONFIG
 
-SESSIONS = {}
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 app.secret_key = "test-key"
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 
-def create_saml_server():
+def create_saml_server() -> Server:
     return Server(config=IdPConfig().load(CONFIG))
 
 
 server = create_saml_server()
 
 
-USERS = [{"username": "rahmah", "password": "password123"}]
+USERS: List[Dict[str, str]] = [{"username": "rahmah", "password": "password123"}]
 
 
-def authenticate_user(username: str, password: str):
+def authenticate_user(
+    username: str | None, password: str | None
+) -> Dict[str, str] | None:
     """Authenticate a user by checking their username and password."""
     for user in USERS:
         if user["username"] == username and user["password"] == password:
             return user
-    return None
-
-
-def create_session(user):
-    """Create a session for an authenticated user."""
-    if user is None:
-        return None
-    session_id = f"session_{user['username']}"
-    SESSIONS[session_id] = user
-    return session_id
-
-
-def get_session_user(session_id):
-    """Retrieve the user associated with a session ID."""
-    user = SESSIONS.get(session_id)
-    if user:
-        return user["username"]
     return None
 
 
@@ -130,6 +115,10 @@ def login() -> ResponseReturnValue:
 
 @app.route("/slo", methods=["GET"])
 def logout() -> ResponseReturnValue:
+    """Handle incoming saml logout request
+    Clears the user session and creates
+    a saml response
+    """
     saml_request = request.args.get("SAMLRequest")
     relay_state = request.args.get("RelayState")
 

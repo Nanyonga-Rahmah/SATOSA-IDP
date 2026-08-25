@@ -1,12 +1,13 @@
 """SAML IdP configuration for the SATOSA test Identity Provider."""
 
 from pathlib import Path
+from typing import Any, Dict
 
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 
 _PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
-CONFIG: dict[str, object] = {
+CONFIG: Dict[str, Any] = {
     # "entityid": "https://idp-latest.onrender.com/idp",
     "entityid": "http://127.0.0.1:9000",
     "key_file": str(_PROJECT_ROOT / "certs" / "idp.key"),
