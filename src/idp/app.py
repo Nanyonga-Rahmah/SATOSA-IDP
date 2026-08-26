@@ -19,7 +19,7 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 
 def create_saml_server() -> Server:
-    """Creates  a Saml2 identity provider."""
+    """Provide a Saml2 identity provider."""
     return Server(config=IdPConfig().load(CONFIG))
 
 
@@ -51,7 +51,6 @@ def metadata() -> ResponseReturnValue:
 @app.route("/sso", methods=["GET"])
 def sso() -> ResponseReturnValue:
     """Handle an incoming SAML authentication request."""
-
     saml_request = request.args.get("SAMLRequest")
     saml_relay_state = request.args.get("RelayState")
 
@@ -118,7 +117,7 @@ def login() -> ResponseReturnValue:
 
 @app.route("/slo", methods=["GET"])
 def logout() -> ResponseReturnValue:
-    """Handle incoming saml logout request
+    """Handle incoming saml logout request.
 
     Clears the user session and creates
     a saml response

@@ -104,32 +104,25 @@ def test_idp_creates_response_args_for_authn_request(
 
 
 def test_sso_route_stores_saml_request_and_relay_state_in_session(
-    client: FlaskClient, samlrequest: str, mockIdp: Server
+    client: FlaskClient, samlrequest: str
 ) -> None:
-    """Verify that the SSO route stores the SAML request and RelayState in the.
-
-    session
-    """
+    """Verify that the SSO route stores the SAML request and RelayState in the session."""
     relay_state = "dummy"
-    response = mockIdp.parse_authn_request(samlrequest)
-    authn_request = response.message
-    sp_info = mockIdp.response_args(authn_request)
-
-    with client.session_transaction() as session:
-        session["saml_request"] == samlrequest
-        session["relay_state"] == relay_state
-        session["sp_info"] == sp_info
 
     response = client.get(
         "/sso",
-        query_string={"SAMLRequest": samlrequest, "RelayState": relay_state},
+        query_string={
+            "SAMLRequest": samlrequest,
+            "RelayState": relay_state,
+        },
     )
 
     assert response.status_code == 200
 
-    assert session["saml_request"] is not None
-    assert session["relay_state"] is not None
-    assert session["sp_info"] is not None
+    with client.session_transaction() as session:
+        assert session["saml_request"] == samlrequest
+        assert session["relay_state"] == relay_state
+        assert session["sp_info"] is not None
 
 
 def test_sso_route_does_not_create_session_for_invalid_requests(

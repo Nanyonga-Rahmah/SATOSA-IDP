@@ -83,7 +83,7 @@ This will run the idp on `http://localhost:9000` verify on `http://localhost:900
  ```
 
 
-<!-- 
+<!--
 This creates a virtual environment, installs the package in
 editable mode with development dependencies, and installs the
 pre-commit hooks.
