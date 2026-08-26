@@ -28,6 +28,16 @@ dev = [
     "build"
 ]
 
+test = [
+    "faker",
+    "pytest",
+    "pytest-cov",
+    "pytest-emoji",
+    "pytest-md",
+    "pytest-order",
+    "pytest-reportlog",
+]
+
 [tool.black]
 line-length = 88
 target-version = ["py311"]

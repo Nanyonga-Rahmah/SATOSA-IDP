@@ -8,7 +8,6 @@ from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 _PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 CONFIG: Dict[str, Any] = {
-    # "entityid": "https://idp-latest.onrender.com/idp",
     "entityid": "http://127.0.0.1:9000",
     "key_file": str(_PROJECT_ROOT / "certs" / "idp.key"),
     "cert_file": str(_PROJECT_ROOT / "certs" / "idp.crt"),

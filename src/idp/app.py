@@ -1,3 +1,5 @@
+"""A Flask Idp."""
+
 from pathlib import Path
 from typing import Dict, List
 
@@ -17,6 +19,7 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 
 def create_saml_server() -> Server:
+    """Creates  a Saml2 identity provider."""
     return Server(config=IdPConfig().load(CONFIG))
 
 
@@ -64,6 +67,7 @@ def sso() -> ResponseReturnValue:
         session["relay_state"] = saml_relay_state
 
     except Exception:
+        print(Exception)
         return "Invalid SAMLRequest", 400
 
     return render_template("login.html"), 200
@@ -72,7 +76,6 @@ def sso() -> ResponseReturnValue:
 @app.route("/login", methods=["POST"])
 def login() -> ResponseReturnValue:
     """Authenticate the user and create a SAML response."""
-
     username = request.form.get("username")
     password = request.form.get("password")
 
@@ -116,6 +119,7 @@ def login() -> ResponseReturnValue:
 @app.route("/slo", methods=["GET"])
 def logout() -> ResponseReturnValue:
     """Handle incoming saml logout request
+
     Clears the user session and creates
     a saml response
     """
@@ -165,4 +169,4 @@ def logout() -> ResponseReturnValue:
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=9000)
+    app.run(host="0.0.0.0", port=9000)

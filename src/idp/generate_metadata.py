@@ -1,3 +1,5 @@
+"""Generate SAML identity provider metadata."""
+
 from pathlib import Path
 
 from saml2.config import IdPConfig

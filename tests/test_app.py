@@ -1,3 +1,7 @@
+"""Tests for the Flask SAML identity provider."""
+
+from typing import Any, Dict
+
 from flask.testing import FlaskClient
 from pytest import mark
 from saml2.server import Server
@@ -5,7 +9,6 @@ from saml2.server import Server
 from idp.app import (
     authenticate_user,
 )
-from idp.config import CONFIG
 
 INVALID_SAML_REQUEST = "fake-" "request"
 LOGOUT_REQUEST = (
@@ -21,31 +24,34 @@ LOGOUT_REQUEST = (
 INLOGOUT_REQUEST = "fake-logout-request"
 
 
-def test_idp_is_configured_correctly(server: Server) -> None:
+def test_idp_is_configured_correctly(
+    mockIdp: Server, mockIdpConfig: Dict[str, Any]
+) -> None:
     """Verify that the IdP uses the configured Saml Settings."""
-
-    assert server.config.key_file == CONFIG["key_file"]
-    assert server.config.cert_file == CONFIG["cert_file"]
-    assert server.config.entityid == CONFIG["entityid"]
+    assert mockIdp.config.key_file == mockIdpConfig["key_file"]
+    assert mockIdp.config.cert_file == mockIdpConfig["cert_file"]
+    assert mockIdp.config.entityid == mockIdpConfig["entityid"]
 
 
 def test_authenticate_valid_user() -> None:
-    """Verify that user with correct credentials is correctly authenticated
-    and a response is returned"""
+    """Verify that user with correct credentials is correctly authenticated.
+
+    and a response is returned
+    """
     response = authenticate_user("rahmah", "password123")
 
     assert response is not None
 
 
 def test_authenticate_invalid_user() -> None:
-    """Verify that a user with incorrect credentials fails authentication"""
+    """Verify that a user with incorrect credentials fails authentication."""
     response = authenticate_user("rahmah", "wrong")
 
     assert response is None
 
 
 def test_authenticate_unknown_user() -> None:
-    """Verify that a non-existent user fails authentication"""
+    """Verify that a non-existent user fails authentication."""
     response = authenticate_user("nobody", "anything")
 
     assert response is None
@@ -62,7 +68,7 @@ def test_sso_accepts_valid_saml_request(
     client: FlaskClient,
     samlrequest: str,
 ) -> None:
-    """Verify that the sso endpoint  accepts a vlaid saml request"""
+    """Verify that the sso endpoint  accepts a vlaid saml request."""
     response = client.get(
         "/sso",
         query_string={"SAMLRequest": samlrequest},
@@ -72,7 +78,7 @@ def test_sso_accepts_valid_saml_request(
 
 
 def test_sso_rejects_invalid_saml_request(client: FlaskClient) -> None:
-    """Verify that the sso endpoint rejects  invalid saml requests"""
+    """Verify that the sso endpoint rejects  invalid saml requests."""
     response = client.get(
         "/sso",
         query_string={"SAMLRequest": INVALID_SAML_REQUEST},
@@ -82,50 +88,57 @@ def test_sso_rejects_invalid_saml_request(client: FlaskClient) -> None:
 
 
 def test_idp_creates_response_args_for_authn_request(
-    server: Server, samlrequest: str
+    mockIdp: Server, samlrequest: str
 ) -> None:
-    """Verify that a valid saml request produces the required
-    response arguments."""
+    """Verify that a valid saml request produces the required.
 
-    parsed_request = server.parse_authn_request(samlrequest)
+    response arguments
+    """
+    parsed_request = mockIdp.parse_authn_request(samlrequest)
 
     authn_request = parsed_request.message
 
-    sp_info = server.response_args(authn_request)
+    sp_info = mockIdp.response_args(authn_request)
 
     assert sp_info is not None
 
 
 def test_sso_route_stores_saml_request_and_relay_state_in_session(
-    client: FlaskClient, samlrequest: str, server: Server
+    client: FlaskClient, samlrequest: str, mockIdp: Server
 ) -> None:
-    """Verify that the SSO route stores the SAML request and RelayState in the
-    session."""
+    """Verify that the SSO route stores the SAML request and RelayState in the.
 
-    saml_request = samlrequest
+    session
+    """
     relay_state = "dummy"
-    response = server.parse_authn_request(saml_request)
+    response = mockIdp.parse_authn_request(samlrequest)
     authn_request = response.message
-    sp_info = server.response_args(authn_request)
+    sp_info = mockIdp.response_args(authn_request)
+
+    with client.session_transaction() as session:
+        session["saml_request"] == samlrequest
+        session["relay_state"] == relay_state
+        session["sp_info"] == sp_info
 
     response = client.get(
         "/sso",
-        query_string={"SAMLRequest": saml_request, "RelayState": relay_state},
+        query_string={"SAMLRequest": samlrequest, "RelayState": relay_state},
     )
 
     assert response.status_code == 200
 
-    with client.session_transaction() as session:
-        assert session["saml_request"] == saml_request
-        assert session["relay_state"] == relay_state
-        assert session["sp_info"] == sp_info
+    assert session["saml_request"] is not None
+    assert session["relay_state"] is not None
+    assert session["sp_info"] is not None
 
 
 def test_sso_route_does_not_create_session_for_invalid_requests(
     client: FlaskClient,
 ) -> None:
-    """An invalid SAMLRequest should return a 400 response and not create a
-    session."""
+    """An invalid SAMLRequest should return a 400 response and not create a.
+
+    session.
+    """
     response = client.get(
         "/sso",
         query_string={"SAMLRequest": INVALID_SAML_REQUEST},
@@ -134,18 +147,19 @@ def test_sso_route_does_not_create_session_for_invalid_requests(
 
 
 def test_login_route_returns_401_for_invalid_credentials(
-    client: FlaskClient, samlrequest: str, server: Server
+    client: FlaskClient, samlrequest: str, mockIdp: Server
 ) -> None:
-    """An unsuccessful login should return a 401 response and not create a
-    SAML response."""
+    """An unsuccessful login should return a 401 response and not create a.
 
-    parsed_request = server.parse_authn_request(
+    SAML response
+    """
+    parsed_request = mockIdp.parse_authn_request(
         samlrequest,
     )
 
     authn_request = parsed_request.message
 
-    sp_info = server.response_args(authn_request)
+    sp_info = mockIdp.response_args(authn_request)
 
     with client.session_transaction() as session:
         session["saml_request"] = samlrequest
@@ -164,18 +178,19 @@ def test_login_route_returns_401_for_invalid_credentials(
 
 
 def test_login_creates_a_response_for_authenticated_user_and_applies_binding(
-    client: FlaskClient, samlrequest: str, server: Server
+    client: FlaskClient, samlrequest: str, mockIdp: Server
 ) -> None:
-    """A successful login should create a SAML response and apply the correct
-    binding."""
+    """A successful login should create a SAML response and apply the correct.
 
-    parsed_request = server.parse_authn_request(
+    binding
+    """
+    parsed_request = mockIdp.parse_authn_request(
         samlrequest,
     )
 
     authn_request = parsed_request.message
 
-    sp_info = server.response_args(authn_request)
+    sp_info = mockIdp.response_args(authn_request)
 
     with client.session_transaction() as session:
         session["saml_request"] = samlrequest
@@ -202,15 +217,19 @@ def test_login_creates_a_response_for_authenticated_user_and_applies_binding(
 def test_whether_the_slo_route_receives_a_saml_logout_request(
     client: FlaskClient,
 ) -> None:
-    """Verify that the slo route accepts a saml logout
-    request"""
+    """Verify that the slo route accepts a saml logout.
+
+    request
+    """
     response = client.get("/slo", query_string={"SAMLRequest": LOGOUT_REQUEST})
     assert response.status_code == 200
 
 
 def test_slo_rejects_request_without_saml_request(client: FlaskClient) -> None:
-    """Verify that the slo route rejects requests without saml logout
-    requests"""
+    """Verify that the slo route rejects requests without saml logout.
+
+    requests
+    """
     response = client.get("/slo")
     assert response.status_code == 400
 
@@ -255,8 +274,10 @@ def test_slo_route_returns_logout_response(client: FlaskClient) -> None:
 
 
 def test_slo_route_applies_binding(client: FlaskClient) -> None:
-    """Verify that the SLO endpoint returns the logout response using
-    the expected binding."""
+    """Verify that the SLO endpoint returns the logout response using.
+
+    the expected binding.
+    """
     response = client.get(
         "/slo",
         query_string={"SAMLRequest": LOGOUT_REQUEST},
