@@ -18,12 +18,12 @@ app.secret_key = "test-key"
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[0]
 
 
-def create_saml_server() -> Server:
+def create_saml_server(idpConfig: dict[str, str]) -> Server:
     """Provide a Saml2 identity provider."""
-    return Server(config=IdPConfig().load(CONFIG))
+    return Server(config=IdPConfig().load(idpConfig))
 
 
-server = create_saml_server()
+server = create_saml_server(CONFIG)
 
 
 USERS: List[Dict[str, str]] = [{"username": "rahmah", "password": "password123"}]
