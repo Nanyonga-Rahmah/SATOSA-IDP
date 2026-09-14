@@ -35,12 +35,15 @@ def test_idp_creation(mockIdpConfig: dict[str, Any], mockSp_metadata: Path) -> N
 
 
 def test_idp_is_configured_correctly(
-    mockIdp: Server, mockIdpConfig: Dict[str, Any]
+    mockIdpConfig: Dict[str, Any], mockSp_metadata: Path
 ) -> None:
-    """Verify that the IdP uses the configured Saml Settings."""
-    assert mockIdp.config.key_file == mockIdpConfig["key_file"]
-    assert mockIdp.config.cert_file == mockIdpConfig["cert_file"]
-    assert mockIdp.config.entityid == mockIdpConfig["entityid"]
+    """Verify that the created IdP uses the configured Saml Settings."""
+    mockIdpConfig["metadata"] = {"local": [str(mockSp_metadata)]}
+    idpServer = create_saml_server(mockIdpConfig)
+    assert idpServer.config.key_file == mockIdpConfig["key_file"]
+    assert idpServer.config.cert_file == mockIdpConfig["cert_file"]
+    assert idpServer.config.entityid == mockIdpConfig["entityid"]
+    assert idpServer.config.metadata is not None
 
 
 def test_authenticate_valid_user() -> None:
