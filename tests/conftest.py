@@ -23,7 +23,6 @@ from idp.app import app as flask_app
 
 def generate_key_pair() -> dict[str, str]:
     """Return a  certificate and private key."""
-    # Generate the key pair first.
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
     subject = issuer = x509.Name([])
