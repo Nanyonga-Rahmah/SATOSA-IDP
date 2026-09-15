@@ -8,7 +8,7 @@ from flask.typing import ResponseReturnValue
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 from saml2.authn_context import PASSWORDPROTECTEDTRANSPORT
 from saml2.config import IdPConfig
-from saml2.server import Server
+from saml2.server import AuthnRequest, Server
 
 from .config import CONFIG
 
@@ -39,6 +39,12 @@ def authenticate_user(
     return None
 
 
+def validate_request(saml_request: str, saml_Server: Server) -> AuthnRequest:
+    """Validate incoming saml request."""
+    request = saml_Server.parse_authn_request(saml_request)
+    return request
+
+
 @app.route("/metadata")
 def metadata() -> ResponseReturnValue:
     """Serve this IdP's SAML metadata as XML."""
@@ -58,7 +64,7 @@ def sso() -> ResponseReturnValue:
         return "Missing SAMLRequest", 400
 
     try:
-        response = server.parse_authn_request(saml_request)
+        response = validate_request(saml_request, server)
         authn_request = response.message
         sp_info = server.response_args(authn_request)
         session["sp_info"] = sp_info

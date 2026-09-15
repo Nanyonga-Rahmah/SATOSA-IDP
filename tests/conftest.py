@@ -4,7 +4,6 @@ from collections.abc import Generator
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs, urlparse
 
 import pytest
 from cryptography import x509
@@ -16,7 +15,6 @@ from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT
 from saml2.client import Saml2Client
 from saml2.config import IdPConfig, SPConfig
 from saml2.metadata import create_metadata_string
-from saml2.server import Server
 
 from idp.app import app as flask_app
 
@@ -27,7 +25,6 @@ def generate_key_pair() -> dict[str, str]:
 
     subject = issuer = x509.Name([])
 
-    # Now generate an X.509 certificate.
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -39,7 +36,6 @@ def generate_key_pair() -> dict[str, str]:
         .sign(key, hashes.SHA256())
     )
 
-    # Return the certificate and key in PEM format.
     return {
         "cert": cert.public_bytes(serialization.Encoding.PEM).decode("utf-8"),
         "key": key.private_bytes(
@@ -157,30 +153,7 @@ def mockIdp_metadata(
 
 
 @pytest.fixture
-def mockIdp(mockIdpConfig: dict[str, Any], mockSp_metadata: Path) -> Server:
-    """Provide an idp server for testing."""
-    mockIdpConfig["metadata"] = {"local": [str(mockSp_metadata)]}
-    return Server(config=IdPConfig().load(mockIdpConfig))
-
-
-@pytest.fixture
 def mockSp(mockSpConfig: dict[str, Any], mockIdp_metadata: Path) -> Saml2Client:
     """Provide an sp server for testing."""
     mockSpConfig["metadata"] = {"local": [str(mockIdp_metadata)]}
     return Saml2Client(config=SPConfig().load(mockSpConfig))
-
-
-@pytest.fixture
-def samlrequest(mockSp: Saml2Client, mockIdp: Server) -> str:
-    """Provide a saml request from the sp test server."""
-    request_id, binding, http_info = mockSp.prepare_for_negotiated_authenticate(
-        entity_id=mockIdp.config.entityid,
-        relay_state="hello123",
-    )
-    headers = dict(http_info["headers"])
-
-    location = headers["Location"]
-
-    query = parse_qs(urlparse(location).query)
-
-    return query["SAMLRequest"][0]
